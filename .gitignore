@@ -1,0 +1,14 @@
+# Docker overrides
+.env.local
+docker-compose.override.yml
+
+# Symfony
+app/vendor/
+app/var/
+app/.env.local
+app/.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
