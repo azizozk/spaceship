@@ -1,0 +1,26 @@
+framework:
+    messenger:
+        # Retry strategy for failed messages
+        failure_transport: failed
+
+        transports:
+            # AMQP transport backed by RabbitMQ
+            async:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    exchange:
+                        name: messages
+                        type: direct
+                    queues:
+                        messages: ~
+                retry_strategy:
+                    max_retries: 3
+                    multiplier: 2
+
+            # Dead-letter queue for permanently failed messages
+            failed:
+                dsn: 'doctrine://default?queue_name=failed'
+
+        routing:
+            # Route all messages to the async transport by default
+            'App\Message\AsyncMessageInterface': async

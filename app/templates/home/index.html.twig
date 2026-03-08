@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block body %}
+<header>
+    <h1>🚀 Spaceship</h1>
+    <p class="subtitle">Symfony 7 · RabbitMQ · Docker</p>
+</header>
+
+<div class="card">
+    <h2>Services</h2>
+    <div class="service">
+        <span class="badge badge-green">RUNNING</span>
+        <strong>Symfony 7 App</strong>
+        <span style="color:#94a3b8">— http://localhost:8080</span>
+    </div>
+    <div class="service">
+        <span class="badge badge-green">RUNNING</span>
+        <strong>RabbitMQ AMQP</strong>
+        <span style="color:#94a3b8">— amqp://rabbitmq:5672</span>
+    </div>
+    <div class="service">
+        <span class="badge badge-blue">UI</span>
+        <strong>RabbitMQ Management</strong>
+        <span style="color:#94a3b8">— http://localhost:15672</span>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Dispatch a Demo Message</h2>
+    <p style="color:#94a3b8; margin-bottom:1rem;">
+        Click the button to publish a <code>DemoMessage</code> to RabbitMQ via
+        Symfony Messenger. Then open the RabbitMQ UI to see the queued message.
+    </p>
+    <div class="links">
+        <form method="POST" action="{{ path('app_dispatch') }}">
+            <button type="submit" class="btn btn-success">Dispatch Message</button>
+        </form>
+        <a href="http://localhost:15672" target="_blank" class="btn btn-primary">Open RabbitMQ UI →</a>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Consume Messages</h2>
+    <p style="color:#94a3b8; margin-bottom:0.5rem;">Run the Messenger worker inside the PHP container:</p>
+    <pre style="background:#0f172a; padding:1rem; border-radius:0.5rem; overflow-x:auto; color:#7dd3fc">docker compose exec php php bin/console messenger:consume async -vv</pre>
+</div>
+{% endblock %}
