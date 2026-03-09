@@ -10,20 +10,30 @@
         "ext-amqp": "*",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "api-platform/doctrine-orm": "^4.2",
+        "api-platform/symfony": "^4",
+        "doctrine/doctrine-migrations-bundle": "^4.0",
+        "easycorp/easyadmin-bundle": "*",
+        "lexik/jwt-authentication-bundle": "^3.2",
+        "php-amqplib/php-amqplib": "^3.7",
+        "runtime/frankenphp-symfony": "^0.2.0",
+        "symfony/amqp-messenger": "7.*",
         "symfony/console": "7.*",
         "symfony/dotenv": "7.*",
+        "symfony/expression-language": "7.*",
         "symfony/flex": "^2",
         "symfony/framework-bundle": "7.*",
         "symfony/messenger": "7.*",
-        "symfony/amqp-messenger": "7.*",
+        "symfony/monolog-bundle": "^4.0",
         "symfony/runtime": "7.*",
         "symfony/twig-bundle": "7.*",
+        "symfony/yaml": "7.*",
         "twig/twig": "^3.0"
     },
     "require-dev": {
         "symfony/debug-bundle": "7.*",
         "symfony/maker-bundle": "^1.0",
-        "symfony/profiler-pack": "^1.0",
+        "symfony/stopwatch": "7.*",
         "symfony/web-profiler-bundle": "7.*"
     },
     "config": {
@@ -56,6 +66,9 @@
         "symfony": {
             "allow-contrib": false,
             "require": "7.*"
+        },
+        "runtime": {
+            "class": "Runtime\\FrankenPhpSymfony\\Runtime"
         }
     }
 }

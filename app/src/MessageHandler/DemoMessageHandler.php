@@ -16,7 +16,7 @@ final class DemoMessageHandler
     public function __invoke(DemoMessage $message): void
     {
         $this->logger->info('Received DemoMessage', ['content' => $message->content]);
-
+        $this->logger->warning(json_encode($message->content));
         // TODO: add your business logic here
     }
 }

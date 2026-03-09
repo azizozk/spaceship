@@ -1,0 +1,20 @@
+api_platform:
+    title: Spaceship API
+    version: 1.0.0
+    defaults:
+        stateless: true
+        cache_headers:
+            vary: ['Content-Type', 'Authorization', 'Origin']
+    formats:
+        jsonld: ['application/ld+json']
+        json: ['application/json']
+    docs_formats:
+        jsonld: ['application/ld+json']
+        jsonopenapi: ['application/vnd.openapi+json']
+        html: ['text/html']
+    swagger:
+        persist_authorization: true
+        http_auth:
+            Bearer:
+                scheme: bearer
+                bearerFormat: JWT
