@@ -11,9 +11,9 @@ services:
       RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST:-/}
     ports:
       - "5672:5672"    # AMQP
-      - "1883:1883"    # MQTT
-      - "15672:15672"  # Management UI
-      - "15675:15675"  # MQTT over WebSocket
+      - "0.0.0.0:1883:1883"    # MQTT
+      - "127.0.0.1:15672:15672"  # Management UI
+      - "127.0.0.1:15675:15675"  # MQTT over WebSocket
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
       - ./docker/rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins
@@ -55,11 +55,9 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-spaceship}:${POSTGRES_PASSWORD:-spaceship}@postgres:5432/${POSTGRES_DB:-spaceship}?serverVersion=16&charset=utf8
       RABBITMQ_DSN: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASS:-guest}@rabbitmq:5672/${RABBITMQ_VHOST:-%2F}
       MESSENGER_TRANSPORT_DSN: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASS:-guest}@rabbitmq:5672/%2F/messages
-      SERVER_NAME: ${SERVER_NAME:-localhost}
+      SERVER_NAME: ":80"
     ports:
-      - "8080:80"
-      - "443:443"
-      - "8000:8000"
+      - "127.0.0.1:8080:80"
     volumes:
       - ./app:/app
     depends_on:
