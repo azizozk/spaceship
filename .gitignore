@@ -12,3 +12,5 @@ app/.env.*.local
 .idea/
 .vscode/
 *.swp
+
+scripts/.venv
