@@ -4,12 +4,12 @@
 	}
 }
 
-localhost {
+:80 {
 	log
 
 	encode zstd br gzip
 
-	root public/
+	root * public/
 
 	php_server {
 		try_files {path} index.php
