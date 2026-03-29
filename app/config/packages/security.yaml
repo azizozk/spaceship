@@ -29,6 +29,14 @@ security:
         main:
             lazy: true
             provider: app_user_provider
+#            form_login:
+#                login_path: admin_login
+#                check_path: admin_login
+#                default_target_path: admin
+#                enable_csrf: true
+#            logout:
+#                path: admin_logout
+#                target: admin_login
 
     access_control:
         - { path: ^/auth/login, roles: PUBLIC_ACCESS }
@@ -36,6 +44,8 @@ security:
         - { path: ^/api/docs, roles: PUBLIC_ACCESS }
         - { path: ^/api/contexts, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: ROLE_USER }
+#        - { path: ^/admin/login, roles: PUBLIC_ACCESS }
+#        - { path: ^/admin, roles: ROLE_ADMIN }
 
 when@test:
     security:
