@@ -6,6 +6,8 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -46,6 +48,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\Column]
     private ?string $password = null;
+
+    /**
+     * @var Collection<int, PuduAccount>
+     */
+    #[ORM\ManyToMany(targetEntity: PuduAccount::class, mappedBy: 'owners')]
+    private Collection $puduAccounts;
+
+    public function __construct()
+    {
+        $this->puduAccounts = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -126,5 +139,32 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function eraseCredentials(): void
     {
         // @deprecated, to be removed when upgrading to Symfony 8
+    }
+
+    /**
+     * @return Collection<int, PuduAccount>
+     */
+    public function getPuduAccounts(): Collection
+    {
+        return $this->puduAccounts;
+    }
+
+    public function addPuduAccount(PuduAccount $puduAccount): static
+    {
+        if (!$this->puduAccounts->contains($puduAccount)) {
+            $this->puduAccounts->add($puduAccount);
+            $puduAccount->addOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removePuduAccount(PuduAccount $puduAccount): static
+    {
+        if ($this->puduAccounts->removeElement($puduAccount)) {
+            $puduAccount->removeOwner($this);
+        }
+
+        return $this;
     }
 }
