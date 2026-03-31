@@ -7,6 +7,9 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    pudu.api_key: '%env(PUDU_API_KEY)%'
+    pudu.api_secret: '%env(PUDU_API_SECRET)%'
+    pudu.api_host: '%env(PUDU_API_HOST)%'
 
 services:
     # default configuration for services in *this* file
