@@ -36,10 +36,17 @@ class PuduAccount
     #[ORM\OneToMany(targetEntity: PuduAccountLog::class, mappedBy: 'puduAccount')]
     private Collection $puduAccountLogs;
 
+    /**
+     * @var Collection<int, RobotGroup>
+     */
+    #[ORM\OneToMany(targetEntity: RobotGroup::class, mappedBy: 'puduAccount')]
+    private Collection $robotGroups;
+
     public function __construct()
     {
         $this->owners = new ArrayCollection();
         $this->puduAccountLogs = new ArrayCollection();
+        $this->robotGroups = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -131,6 +138,36 @@ class PuduAccount
             // set the owning side to null (unless already changed)
             if ($puduAccountLog->getPuduAccount() === $this) {
                 $puduAccountLog->setPuduAccount(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, RobotGroup>
+     */
+    public function getRobotGroups(): Collection
+    {
+        return $this->robotGroups;
+    }
+
+    public function addRobotGroup(RobotGroup $robotGroup): static
+    {
+        if (!$this->robotGroups->contains($robotGroup)) {
+            $this->robotGroups->add($robotGroup);
+            $robotGroup->setPuduAccount($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRobotGroup(RobotGroup $robotGroup): static
+    {
+        if ($this->robotGroups->removeElement($robotGroup)) {
+            // set the owning side to null (unless already changed)
+            if ($robotGroup->getPuduAccount() === $this) {
+                $robotGroup->setPuduAccount(null);
             }
         }
 
