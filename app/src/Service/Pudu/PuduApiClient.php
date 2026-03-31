@@ -9,7 +9,9 @@ use App\Service\Pudu\Dto\CleanRobotDetail;
 use App\Service\Pudu\Dto\CompleteCallTaskRequest;
 use App\Service\Pudu\Dto\CompleteCallTaskResponse;
 use App\Service\Pudu\Dto\CurrentTaskStatusResponse;
+use App\Service\Pudu\Dto\GetBoundRobotGroupsResponse;
 use App\Service\Pudu\Dto\GetCurrentMapResponse;
+use App\Service\Pudu\Dto\GetRobotsInGroupResponse;
 use App\Service\Pudu\Dto\InitiateCallTaskRequest;
 use App\Service\Pudu\Dto\InitiateCallTaskResponse;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -199,6 +201,52 @@ class PuduApiClient
         }
 
         return CleanRobotDetail::fromArray($raw['data']);
+    }
+
+    /**
+     * Returns the list of robots belonging to a robot group.
+     *
+     * @throws PuduApiException on HTTP or API-level failure
+     */
+    public function getRobotsInGroup(string $groupId): GetRobotsInGroupResponse
+    {
+        $path = '/open-platform-service/v1/robot/list_by_device_and_group';
+        $raw = $this->get($path, ['group_id' => $groupId]);
+
+        if (($raw['message'] ?? '') !== 'SUCCESS') {
+            throw new PuduApiException(
+                \sprintf('GetRobotsInGroup failed: %s', $raw['message'] ?? 'unknown error'),
+            );
+        }
+
+        return GetRobotsInGroupResponse::fromArray($raw['data']);
+    }
+
+    /**
+     * Returns the robot group list bound to a shop or microservice device.
+     *
+     * Pass either $shopId (new platform) or $device (legacy SDK microservice).
+     *
+     * @throws PuduApiException on HTTP or API-level failure
+     */
+    public function getBoundRobotGroups(?int $shopId = null, ?string $device = null): GetBoundRobotGroupsResponse
+    {
+        $path = '/open-platform-service/v1/robot/group/list';
+
+        $params = array_filter([
+            'shop_id' => $shopId,
+            'device' => $device,
+        ], static fn($v) => null !== $v);
+
+        $raw = $this->get($path, $params);
+
+        if (($raw['message'] ?? '') !== 'SUCCESS') {
+            throw new PuduApiException(
+                \sprintf('GetBoundRobotGroups failed: %s', $raw['message'] ?? 'unknown error'),
+            );
+        }
+
+        return GetBoundRobotGroupsResponse::fromArray($raw['data']);
     }
 
     /**
