@@ -6,41 +6,38 @@ use App\Entity\PuduAccount;
 use App\Service\Pudu\PuduApiClient;
 use App\Service\Pudu\PuduApiClientFactory;
 use App\Service\Pudu\PuduSignatureService;
+use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class PuduApiClientFactoryTest extends TestCase
 {
-    public function testCreateFromAccountReturnsConfiguredClient(): void
-    {
-        $account = new PuduAccount();
-        $account->setApiKey('account-key');
-        $account->setApiSecret('account-secret');
-        $account->setApiHost('api.example.com');
+    private PuduApiClientFactory $factory;
 
-        $factory = new PuduApiClientFactory(
+    protected function setUp(): void
+    {
+        $this->factory = new PuduApiClientFactory(
             new PuduSignatureService(),
             $this->createStub(HttpClientInterface::class),
+            $this->createStub(EntityManagerInterface::class),
         );
+    }
 
-        $client = $factory->createFromAccount($account);
+    public function testCreateFromAccountReturnsConfiguredClient(): void
+    {
+        $account = (new PuduAccount())->setApiKey('k')->setApiSecret('s')->setApiHost('h');
 
-        self::assertInstanceOf(PuduApiClient::class, $client);
+        self::assertInstanceOf(PuduApiClient::class, $this->factory->createFromAccount($account));
     }
 
     public function testEachAccountGetsSeparateClientInstance(): void
     {
-        $factory = new PuduApiClientFactory(
-            new PuduSignatureService(),
-            $this->createStub(HttpClientInterface::class),
-        );
-
         $account1 = (new PuduAccount())->setApiKey('k1')->setApiSecret('s1')->setApiHost('h1');
         $account2 = (new PuduAccount())->setApiKey('k2')->setApiSecret('s2')->setApiHost('h2');
 
-        $client1 = $factory->createFromAccount($account1);
-        $client2 = $factory->createFromAccount($account2);
-
-        self::assertNotSame($client1, $client2);
+        self::assertNotSame(
+            $this->factory->createFromAccount($account1),
+            $this->factory->createFromAccount($account2),
+        );
     }
 }

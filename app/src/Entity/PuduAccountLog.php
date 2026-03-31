@@ -33,11 +33,16 @@ class PuduAccountLog
     private ?array $responseBody = null;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $executedAt = null;
+    private \DateTimeImmutable $executedAt;
 
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function __construct()
+    {
+        $this->executedAt = new \DateTimeImmutable();
     }
 
     public function getPuduAccount(): ?PuduAccount
