@@ -30,9 +30,16 @@ class PuduAccount
     #[ORM\Column(length: 255)]
     private ?string $apiHost = null;
 
+    /**
+     * @var Collection<int, PuduAccountLog>
+     */
+    #[ORM\OneToMany(targetEntity: PuduAccountLog::class, mappedBy: 'puduAccount')]
+    private Collection $puduAccountLogs;
+
     public function __construct()
     {
         $this->owners = new ArrayCollection();
+        $this->puduAccountLogs = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -96,6 +103,36 @@ class PuduAccount
     public function setApiHost(string $apiHost): static
     {
         $this->apiHost = $apiHost;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PuduAccountLog>
+     */
+    public function getPuduAccountLogs(): Collection
+    {
+        return $this->puduAccountLogs;
+    }
+
+    public function addPuduAccountLog(PuduAccountLog $puduAccountLog): static
+    {
+        if (!$this->puduAccountLogs->contains($puduAccountLog)) {
+            $this->puduAccountLogs->add($puduAccountLog);
+            $puduAccountLog->setPuduAccount($this);
+        }
+
+        return $this;
+    }
+
+    public function removePuduAccountLog(PuduAccountLog $puduAccountLog): static
+    {
+        if ($this->puduAccountLogs->removeElement($puduAccountLog)) {
+            // set the owning side to null (unless already changed)
+            if ($puduAccountLog->getPuduAccount() === $this) {
+                $puduAccountLog->setPuduAccount(null);
+            }
+        }
 
         return $this;
     }
