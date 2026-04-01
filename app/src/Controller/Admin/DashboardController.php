@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin;
 
+use App\Message\SyncRobotMessage;
 use App\Repository\PuduAccountRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
@@ -10,6 +11,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[AdminDashboard(routePath: '/admin', routeName: 'admin')]
@@ -17,6 +19,7 @@ class DashboardController extends AbstractDashboardController
 {
     public function __construct(
         private readonly PuduAccountRepository $puduAccountRepository,
+        private readonly MessageBusInterface $bus,
     ) {
     }
 
@@ -66,9 +69,9 @@ class DashboardController extends AbstractDashboardController
             return $this->redirectToRoute('admin_account_actions');
         }
 
-        // TODO: implement robot sync logic
+        $this->bus->dispatch(new SyncRobotMessage($id));
 
-        $this->addFlash('success', sprintf('Robots synced for account #%d.', $id));
+        $this->addFlash('success', sprintf('Robot sync queued for account #%d.', $id));
 
         return $this->redirectToRoute('admin_account_actions');
     }
