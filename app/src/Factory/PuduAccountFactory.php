@@ -20,9 +20,9 @@ final class PuduAccountFactory extends PersistentObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'apiHost' => self::faker()->text(255),
-            'apiKey' => self::faker()->text(255),
-            'apiSecret' => self::faker()->text(255),
+            'apiHost' => self::faker()->domainName(),
+            'apiKey' => self::faker()->uuid(),
+            'apiSecret' => self::faker()->sha256(),
         ];
     }
 

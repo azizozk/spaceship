@@ -20,7 +20,7 @@ class RobotInGroup
     #[ORM\Column(length: 255)]
     private ?string $mac = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, unique: true)]
     private ?string $sn = null;
 
     #[ORM\Column(length: 255)]

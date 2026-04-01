@@ -7,6 +7,7 @@ use App\Repository\PuduAccountRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Option\EA;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -46,8 +47,12 @@ class DashboardController extends AbstractDashboardController
     }
 
     #[Route('/admin/account-actions', name: 'admin_account_actions')]
-    public function accountActions(): Response
+    public function accountActions(Request $request): Response
     {
+        if (null === $request->attributes->get(EA::CONTEXT_REQUEST_ATTRIBUTE)) {
+            return $this->redirectToRoute('admin', ['routeName' => 'admin_account_actions']);
+        }
+
         $accounts = $this->puduAccountRepository->findAll();
 
         $accountsByHost = [];

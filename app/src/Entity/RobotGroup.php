@@ -19,7 +19,7 @@ class RobotGroup
     #[ORM\JoinColumn(nullable: false)]
     private ?PuduAccount $puduAccount = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, unique: true)]
     private ?string $puduGroupId = null;
 
     #[ORM\Column(length: 255)]
