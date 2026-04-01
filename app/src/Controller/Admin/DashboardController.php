@@ -75,12 +75,12 @@ class DashboardController extends AbstractDashboardController
     public function configureMenuItems(): iterable
     {
         yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
-        yield MenuItem::linkTo(UserCrudController::class, 'Users', 'fa fa-user');
+        // yield MenuItem::linkTo(UserCrudController::class, 'Users', 'fa fa-user');
         yield MenuItem::linkTo(PuduAccountCrudController::class, 'Pudu Accounts', 'fa fa-lock');
-        yield MenuItem::linkTo(PuduAccountLogCrudController::class, 'Pudu Account Log', 'fa fa-lock');
+        yield MenuItem::linkTo(PuduAccountLogCrudController::class, 'Pudu Account API Log', 'fa fa-book');
+        yield MenuItem::linkToRoute('Pudu Account Actions', 'fa fa-cogs', 'admin_account_actions');
         yield MenuItem::linkTo(RobotGroupCrudController::class, 'Robot Groups', 'fa fa-group');
         yield MenuItem::linkTo(RobotInGroupCrudController::class, 'Robots', 'fa fa-computer');
-        yield MenuItem::linkToRoute('Pudu Account Actions', 'fa fa-cogs', 'admin_account_actions');
 
 
         // yield MenuItem::linkTo(SomeCrudController::class, 'The Label', 'fas fa-list');
