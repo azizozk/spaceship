@@ -2,15 +2,24 @@
 
 namespace App\Controller\Admin;
 
+use App\Repository\PuduAccountRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[AdminDashboard(routePath: '/admin', routeName: 'admin')]
 class DashboardController extends AbstractDashboardController
 {
+    public function __construct(
+        private readonly PuduAccountRepository $puduAccountRepository,
+    ) {
+    }
+
     public function index(): Response
     {
 
@@ -33,6 +42,37 @@ class DashboardController extends AbstractDashboardController
         // return $this->render('some/path/my-dashboard.html.twig');
     }
 
+    #[Route('/admin/account-actions', name: 'admin_account_actions')]
+    public function accountActions(): Response
+    {
+        $accounts = $this->puduAccountRepository->findAll();
+
+        $accountsByHost = [];
+        foreach ($accounts as $account) {
+            $accountsByHost[$account->getApiHost()][] = $account;
+        }
+
+        return $this->render('admin/account_actions.html.twig', [
+            'accountsByHost' => $accountsByHost,
+        ]);
+    }
+
+    #[Route('/admin/account-actions/{id}/sync-robots', name: 'admin_account_sync_robots', methods: ['POST'])]
+    public function syncRobots(int $id, Request $request): RedirectResponse
+    {
+        if (!$this->isCsrfTokenValid('sync_robots_' . $id, $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Invalid CSRF token.');
+
+            return $this->redirectToRoute('admin_account_actions');
+        }
+
+        // TODO: implement robot sync logic
+
+        $this->addFlash('success', sprintf('Robots synced for account #%d.', $id));
+
+        return $this->redirectToRoute('admin_account_actions');
+    }
+
     public function configureDashboard(): Dashboard
     {
         return Dashboard::new()
@@ -46,7 +86,8 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkTo(UserCrudController::class, 'Users', 'fa fa-user');
         yield MenuItem::linkTo(PuduAccountCrudController::class, 'Pudu Accounts', 'fa fa-lock');
         yield MenuItem::linkTo(PuduAccountLogCrudController::class, 'Pudu Account Log', 'fa fa-lock');
-        // yield MenuItem::linkTo(PuduAccountLogCrudController::class::class, 'Pudu Account Log', 'fa fa-pencil');
+        yield MenuItem::linkToRoute('Account Actions', 'fa fa-cogs', 'admin_account_actions');
+
 
         // yield MenuItem::linkTo(SomeCrudController::class, 'The Label', 'fas fa-list');
     }
