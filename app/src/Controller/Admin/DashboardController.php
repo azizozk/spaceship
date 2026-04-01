@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\RobotInGroup;
 use App\Message\SyncRobotMessage;
 use App\Repository\PuduAccountRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
@@ -26,24 +27,7 @@ class DashboardController extends AbstractDashboardController
 
     public function index(): Response
     {
-
-
-        return parent::index();
-
-        // Option 1. You can make your dashboard redirect to some common page of your backend
-        //
-        // return $this->redirectToRoute('admin_user_index');
-
-        // Option 2. You can make your dashboard redirect to different pages depending on the user
-        //
-        // if ('jane' === $this->getUser()->getUsername()) {
-        //     return $this->redirectToRoute('...');
-        // }
-
-        // Option 3. You can render some custom template to display a proper dashboard with widgets, etc.
-        // (tip: it's easier if your template extends from @EasyAdmin/page/content.html.twig)
-        //
-        // return $this->render('some/path/my-dashboard.html.twig');
+        return $this->render('admin/dashboard.html.twig');
     }
 
     #[Route('/admin/account-actions', name: 'admin_account_actions')]
@@ -94,7 +78,9 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkTo(UserCrudController::class, 'Users', 'fa fa-user');
         yield MenuItem::linkTo(PuduAccountCrudController::class, 'Pudu Accounts', 'fa fa-lock');
         yield MenuItem::linkTo(PuduAccountLogCrudController::class, 'Pudu Account Log', 'fa fa-lock');
-        yield MenuItem::linkToRoute('Account Actions', 'fa fa-cogs', 'admin_account_actions');
+        yield MenuItem::linkTo(RobotGroupCrudController::class, 'Robot Groups', 'fa fa-group');
+        yield MenuItem::linkTo(RobotInGroupCrudController::class, 'Robots', 'fa fa-computer');
+        yield MenuItem::linkToRoute('Pudu Account Actions', 'fa fa-cogs', 'admin_account_actions');
 
 
         // yield MenuItem::linkTo(SomeCrudController::class, 'The Label', 'fas fa-list');
