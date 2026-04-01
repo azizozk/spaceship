@@ -17,6 +17,10 @@ framework:
                     max_retries: 3
                     multiplier: 2
 
+            # Doctrine transport for robot sync jobs
+            doctrine:
+                dsn: 'doctrine://default?queue_name=sync_robot'
+
             # Dead-letter queue for permanently failed messages
             failed:
                 dsn: 'doctrine://default?queue_name=failed'
@@ -24,3 +28,4 @@ framework:
         routing:
             # Route all messages to the async transport by default
             'App\Message\AsyncMessageInterface': async
+            'App\Message\SyncRobotMessage': doctrine

@@ -14,3 +14,4 @@ app/.env.*.local
 *.swp
 
 scripts/.venv
+.claude

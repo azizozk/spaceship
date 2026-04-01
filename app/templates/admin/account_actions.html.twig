@@ -1,0 +1,42 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block page_title %}Account Actions{% endblock %}
+
+{% block main %}
+    {% for host, accounts in accountsByHost %}
+        <div class="card mb-4">
+            <div class="card-header fw-semibold">
+                {{ host }}
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-borderless table-striped mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>API Key</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for account in accounts %}
+                            <tr>
+                                <td>{{ account.id }}</td>
+                                <td><code>{{ account.apiKey }}</code></td>
+                                <td>
+                                    <form method="post" action="{{ path('admin_account_sync_robots', { id: account.id }) }}">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('sync_robots_' ~ account.id) }}">
+                                        <button type="submit" class="btn btn-sm btn-primary">
+                                            <i class="fa fa-refresh me-1"></i> Sync robots
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% else %}
+        <p class="text-muted">No Pudu accounts found.</p>
+    {% endfor %}
+{% endblock %}
