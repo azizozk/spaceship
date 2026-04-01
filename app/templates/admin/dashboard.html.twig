@@ -1,0 +1,22 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block main %}
+    <div class="row g-3">
+        {% for item in ea.mainMenu.items %}
+            {% if item.type not in ['section', 'logout', 'exit_impersonation'] and item.linkUrl %}
+                <div class="col-sm-6 col-md-4">
+                    <a href="{{ item.linkUrl }}" class="card text-decoration-none h-100">
+                        <div class="card-body d-flex align-items-center gap-3">
+                            {% if item.icon %}
+                                <i class="{{ item.icon }} fa-lg text-secondary"></i>
+                            {% endif %}
+                            <span class="fw-semibold">{{ item.label }}</span>
+                        </div>
+                    </a>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endblock %}
