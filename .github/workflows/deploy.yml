@@ -47,10 +47,13 @@ jobs:
             git pull origin main --ff-only
             AFTER_SHA=$(git rev-parse HEAD)
 
-            # Rebuild Docker image only when Dockerfile/Caddyfile/docker/ changed
+            # Rebuild image if Dockerfile/Caddyfile/docker/ changed, otherwise just
+            # recreate containers to pick up any environment variable changes
             if git diff --name-only "$BEFORE_SHA" "$AFTER_SHA" \
                  | grep -qE '^(Dockerfile|Caddyfile|docker/)'; then
               docker compose up --build -d --wait
+            else
+              docker compose up -d --wait
             fi
 
             # Run inside container — VPS host has no PHP
