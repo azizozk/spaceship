@@ -23,19 +23,24 @@ class MessageServiceTest extends TestCase
         $this->service = new MessageService($this->lockFactory, $this->bus);
     }
 
-    public function testSendSyncRobotMessageDispatchesWhenLockAcquired(): void
+    public function testSendSyncRobotMessageDispatchesWhenBothLocksAcquired(): void
     {
         $message = new SyncRobotMessage(42);
-        $lock = $this->createMock(LockInterface::class);
 
-        $this->lockFactory->expects(self::once())
+        $rateLimitLock = $this->createMock(LockInterface::class);
+        $processingLock = $this->createMock(LockInterface::class);
+
+        $this->lockFactory->expects(self::exactly(2))
             ->method('createLock')
-            ->with('sync_robot_42')
-            ->willReturn($lock);
+            ->willReturnCallback(function (string $name, float $ttl = 300.0, bool $autoRelease = true) use ($rateLimitLock, $processingLock): LockInterface {
+                return match (true) {
+                    str_starts_with($name, 'sync_robot_throttle_') => $rateLimitLock,
+                    default                                         => $processingLock,
+                };
+            });
 
-        $lock->expects(self::once())
-            ->method('acquire')
-            ->willReturn(true);
+        $rateLimitLock->expects(self::once())->method('acquire')->willReturn(true);
+        $processingLock->expects(self::once())->method('acquire')->willReturn(true);
 
         $this->bus->expects(self::once())
             ->method('dispatch')
@@ -45,19 +50,46 @@ class MessageServiceTest extends TestCase
         $this->service->sendSyncRobotMessage($message);
     }
 
-    public function testSendSyncRobotMessageThrowsWhenLockNotAcquired(): void
+    public function testSendSyncRobotMessageThrowsWhenRateLimitLockNotAcquired(): void
     {
         $message = new SyncRobotMessage(42);
-        $lock = $this->createMock(LockInterface::class);
+
+        $rateLimitLock = $this->createMock(LockInterface::class);
 
         $this->lockFactory->expects(self::once())
             ->method('createLock')
-            ->with('sync_robot_42')
-            ->willReturn($lock);
+            ->with(self::stringContains('sync_robot_throttle_42'), self::anything(), self::anything())
+            ->willReturn($rateLimitLock);
 
-        $lock->expects(self::once())
-            ->method('acquire')
-            ->willReturn(false);
+        $rateLimitLock->expects(self::once())->method('acquire')->willReturn(false);
+
+        $this->bus->expects(self::never())->method('dispatch');
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Rate limit exceeded');
+
+        $this->service->sendSyncRobotMessage($message);
+    }
+
+    public function testSendSyncRobotMessageThrowsAndReleasesRateLimitLockWhenProcessingLockNotAcquired(): void
+    {
+        $message = new SyncRobotMessage(42);
+
+        $rateLimitLock = $this->createMock(LockInterface::class);
+        $processingLock = $this->createMock(LockInterface::class);
+
+        $this->lockFactory->expects(self::exactly(2))
+            ->method('createLock')
+            ->willReturnCallback(function (string $name) use ($rateLimitLock, $processingLock): LockInterface {
+                return match (true) {
+                    str_starts_with($name, 'sync_robot_throttle_') => $rateLimitLock,
+                    default                                         => $processingLock,
+                };
+            });
+
+        $rateLimitLock->expects(self::once())->method('acquire')->willReturn(true);
+        $processingLock->expects(self::once())->method('acquire')->willReturn(false);
+        $rateLimitLock->expects(self::once())->method('release');
 
         $this->bus->expects(self::never())->method('dispatch');
 
@@ -67,7 +99,7 @@ class MessageServiceTest extends TestCase
         $this->service->sendSyncRobotMessage($message);
     }
 
-    public function testFinishSyncRobotMessageReleasesLock(): void
+    public function testFinishSyncRobotMessageReleasesProcessingLock(): void
     {
         $message = new SyncRobotMessage(7);
         $lock = $this->createMock(LockInterface::class);
