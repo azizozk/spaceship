@@ -41,7 +41,7 @@ jobs:
           debug: true
           script: |
             set -euo pipefail
-            cd /var/www/spaceship
+            cd /apps/spaceship
 
             BEFORE_SHA=$(git rev-parse HEAD)
             git pull origin main --ff-only
