@@ -8,9 +8,9 @@ use App\Message\SyncRobotMessage;
 use App\Repository\PuduAccountRepository;
 use App\Repository\RobotGroupRepository;
 use App\Repository\RobotInGroupRepository;
+use App\Service\MessageService;
 use App\Service\Pudu\PuduApiClientFactory;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
@@ -22,18 +22,12 @@ final class SyncRobotMessageHandler
         private readonly RobotGroupRepository $robotGroupRepository,
         private readonly RobotInGroupRepository $robotInGroupRepository,
         private readonly EntityManagerInterface $em,
-        private readonly LockFactory $lockFactory,
+        private readonly MessageService $messageService,
     ) {
     }
 
     public function __invoke(SyncRobotMessage $message): void
     {
-        $lock = $this->lockFactory->createLock("sync_robot_{$message->puduAccountId}");
-
-        if (!$lock->acquire()) {
-            return;
-        }
-
         try {
             $puduAccount = $this->puduAccountRepository->find($message->puduAccountId);
             $api = $this->puduApiClientFactory->createFromAccount($puduAccount);
@@ -76,7 +70,7 @@ final class SyncRobotMessageHandler
 
             $this->em->flush();
         } finally {
-            $lock->release();
+            $this->messageService->finishSyncRobotMessage($message);
         }
     }
 }

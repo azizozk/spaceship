@@ -2,9 +2,9 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\RobotInGroup;
 use App\Message\SyncRobotMessage;
 use App\Repository\PuduAccountRepository;
+use App\Service\MessageService;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
@@ -13,7 +13,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[AdminDashboard(routePath: '/admin', routeName: 'admin')]
@@ -21,7 +20,8 @@ class DashboardController extends AbstractDashboardController
 {
     public function __construct(
         private readonly PuduAccountRepository $puduAccountRepository,
-        private readonly MessageBusInterface $bus,
+        private readonly MessageService $messageService,
+
     ) {
     }
 
@@ -58,9 +58,12 @@ class DashboardController extends AbstractDashboardController
             return $this->redirectToRoute('admin_account_actions');
         }
 
-        $this->bus->dispatch(new SyncRobotMessage($id));
-
-        $this->addFlash('success', sprintf('Robot sync queued for account #%d.', $id));
+        try {
+            $this->messageService->sendSyncRobotMessage(new SyncRobotMessage($id));
+            $this->addFlash('success', sprintf('Robot sync queued for account #%d.', $id));
+        } catch (\Throwable $e) {
+            $this->addFlash('error', sprintf('Robot sync queued for account #%d. ' . $e->getMessage(), $id));
+        }
 
         return $this->redirectToRoute('admin_account_actions');
     }
