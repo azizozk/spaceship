@@ -31,19 +31,17 @@ final readonly class MessageService
             throw new \RuntimeException('Rate limit exceeded, only one sync per minute is allowed.');
         }
 
-        $lock = $this->lockFactory->createLock("sync_robot_{$message->puduAccountId}");
-
-        if (!$lock->acquire()) {
-            $rateLimitLock->release();
-            throw new \RuntimeException('Message in progress, try again later.');
-        }
 
         $this->bus->dispatch($message);
     }
 
     public function finishSyncRobotMessage(SyncRobotMessage $message): void
     {
-        $lock = $this->lockFactory->createLock("sync_robot_{$message->puduAccountId}");
-        $lock->release();
+        $rateLimitLock = $this->lockFactory->createLock(
+            "sync_robot_throttle_{$message->puduAccountId}",
+            ttl: self::SYNC_ROBOT_THROTTLE_TTL,
+            autoRelease: false
+        );
+        $rateLimitLock->release();
     }
 }
